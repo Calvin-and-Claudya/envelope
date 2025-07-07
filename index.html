@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html>
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1">
+ <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tangerine:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+ <title>envelope</title>
+</head>
+<style>
+
+body{
+   max-width: 100%;
+   height: 100vh;
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   background-image: url(bg.jpeg); /* Pastikan bg.jpeg ada */
+   background-repeat: no-repeat;
+   background-size: cover;
+   background-position: center;
+   overflow: hidden;
+   margin: 0; /* Pastikan tidak ada margin default */
+}
+
+/* Loading Overlay */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7); /* Latar belakang gelap transparan */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 100; /* Pastikan di atas semua elemen lain */
+    transition: opacity 0.5s ease-in-out; /* Transisi halus saat muncul/hilang */
+}
+
+.spinner {
+    border: 8px solid rgba(255, 255, 255, 0.3); /* Warna border spinner */
+    border-top: 8px solid #fff; /* Warna bagian yang bergerak */
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 1s linear infinite; /* Animasi berputar */
+    margin-bottom: 15px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Hide when not active */
+.loading-overlay.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none; /* Memastikan tidak ada interaksi saat tersembunyi */
+}
+
+
+ input#flap{
+   display: none;
+ }
+
+ .envelope-container{
+   max-height: 100vh;
+   position: relative;
+   /* Padding agar ada ruang untuk gambar motif/logo */
+   padding: 0; /* Top Right Bottom Left (sesuaikan nilai) */
+   box-sizing: border-box; /* Pastikan padding tidak menambah ukuran total */
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   flex-direction: column; /* Untuk menempatkan logo di atas */
+ }
+
+ /* Container untuk amplop dan motif samping/bawah */
+ .envelope-wrapper {
+    position: relative;
+    width: 320px; /* Lebar amplop */
+    height: 200px; /* Tinggi amplop */
+    display: flex; /* Untuk memusatkan amplop di dalamnya */
+    justify-content: center;
+    align-items: center;
+    z-index: 5; /* Pastikan amplop di atas motif samping */
+    
+ }
+
+ .envelope-back{
+   position: relative;
+   width: 320px;
+   height: 200px;
+   background-color: #f0ede6;
+ }
+
+ .card{
+   position: absolute;
+   width: 300px;
+   height: 180px;
+   background-color: white;
+   top: 10px;
+   left: 0;
+   display: flex;
+   align-items: center;
+   justify-content:center;
+   font-size: 14px;
+   font-family: Arial, Helvetica, sans-serif;
+   transition: 0.1s;
+   z-index: 1;
+   cursor: pointer;
+   border-radius: 7%;
+   text-align: start;
+   padding: 3%;
+   opacity: 0.3;
+ }
+
+ .card-border {
+        border: 2px dashed #ccc;
+        padding: 15px;
+        width: calc(100% - 30px);
+        height: calc(100% - 30px);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .card-border p:first-child {
+        font-weight: 700;
+        margin-bottom: 5%;
+        font-family: Tangerine;
+        font-size: 1.2rem;
+        color: #3271a5;
+      }
+      
+      .card-border p strong {
+        font-weight: 900; /* Atau coba nilai numerik yang lebih tinggi seperti 700, 800, 900 */
+      }
+
+
+ .card-front{
+   position: absolute;
+   width: 0;
+   height: 0;
+   border-bottom: 100px solid #f0ede6;
+   border-left: 160px solid transparent;
+   border-right: 160px solid transparent;
+   top:100px;
+   left: 0;
+   z-index: 3;
+   filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.3));
+ }
+ .card-front:before, .card-front:after{
+   content: "";
+   position: absolute;
+   border-bottom: 100px solid transparent;
+   border-top: 100px solid transparent;
+   height: 0;
+   width: 0;
+   filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.3));
+ }
+ .card-front:before{
+   border-left: 161px solid transparent;
+   border-right: 161px solid #f0ede6;
+   top: -100px;
+   left: -162px;
+ }
+
+   .card-front:after{
+   border-right: 161px solid transparent;
+   border-left: 161px solid #f0ede6;
+   top: -100px;
+   left: -160px;
+ }
+
+ .flap{
+   position: absolute;
+   width: 0;
+   height: 0;
+   border-top: 110px solid #f0ede6;
+   border-left: 160px solid transparent;
+   border-right: 160px solid transparent;
+   top: 0;
+   left: 0;
+   cursor: pointer;
+   transition: 1s;
+   transform-origin: top;
+   z-index: 4;
+   filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.3));
+ }
+ #flap:checked + .flap{
+   transform: rotateX(180deg);
+ }
+ #flap:checked ~ .card-front{
+   z-index: 7;
+ }
+
+ @keyframes outcard {
+   0% {
+     z-index: 4;
+     transform: translateY(0);
+   }
+   10% {
+     scale: 0.3;
+     z-index: 4;
+     transform: translateY(-200px);
+   }
+    50% {
+     scale: 0.4;
+     z-index: 9;
+     transform: translateY(-300px);
+   }
+   90% {
+     scale: 0.4;
+   }
+   100% {
+     opacity: 1;
+     scale: 1;
+     z-index: 9;
+     transform: translateY(-30px);
+   }
+   }
+
+ #flap:checked ~ .card{
+   animation: outcard 1.5s forwards;
+ }
+ 
+ @keyframes incard {
+  0% {
+    opacity: 1; /* Dimulai dengan kartu terlihat penuh */
+    scale: 1; /* Ukuran normal */
+    z-index: 9; /* Tetap di atas saat masuk */
+    transform: translateY(-30px); /* Posisi akhir outcard */
+  }
+  30% {
+     z-index: 2;
+     opacity: 0.2;
+   }
+  50% {
+    scale: 0.2; /* Ukuran menyusut saat di tengah */
+    z-index: 2;
+    transform: translateY(-300px); /* Bergerak ke atas sebelum turun ke dalam amplop */
+    opacity: 0.2;
+  }
+  90% {
+     scale: 0.1;
+     opacity: 0.2;
+     z-index: 2;
+   }
+  100% {
+    z-index: 1; /* Kembali ke z-index semula (di dalam amplop) */
+    transform: translateY(0); /* Kembali ke posisi awal di dalam amplop */
+    opacity: 0.3; /* Kembali ke opasitas samar seperti saat kartu tertutup */
+  }
+}
+
+
+ /* --- Gaya untuk Motif Bunga dan Logo --- */
+
+ .flower-motif {
+    position: absolute;
+    background-repeat: repeat; /* Ulangi gambar bunga */
+    z-index: 0; /* Di belakang amplop */
+ }
+
+ .motif-left {
+    left: 0;
+    width: 50px; /* Lebar motif samping */
+    height: 100%;
+    background-image: url(flower_motif_sides.png); /* Ganti dengan path gambar bunga samping Anda */
+    background-size: cover;
+    overflow: hidden;
+    top: 0;
+    z-index: 8;
+ }
+
+ .motif-right {
+    right: 0;
+    width: 60px; /* Lebar motif samping */
+    height: 100%;
+    background-image: url(flower_motif_side.png); /* Ganti dengan path gambar bunga samping Anda */
+    background-size: cover;
+    overflow: hidden;
+    top: 0;
+    z-index: 8;
+ }
+
+ .motif-bottom {
+    width: 70%;
+    height: 50px; /* Tinggi motif bawah */
+    background-image: url(flower_motif_bottom.png);
+    background-size: cover;
+    overflow: hidden;
+    bottom: 0;
+    left: 40px;
+    z-index: 9;
+ }
+
+ .logo {
+    position: absolute;
+    width: 70px; /* Lebar logo */
+    height: 70px; /* Tinggi logo */
+    background-image: url(logo.png); /* Ganti dengan path gambar logo Anda */
+    background-size: 100% 100%; /* Sesuaikan ukuran gambar agar pas */
+    background-repeat: no-repeat;
+    background-position: center;
+    top: -100px; /* Posisikan di atas envelope-wrapper */
+    left: -33px;
+    z-index: 6; /* Di atas amplop */
+ }
+ 
+/* audio */
+#audio-container {
+    width: fit-content;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    position: relative;
+}
+
+.audio-icon-wrapper {
+    width: 2rem;
+    height: 2rem;
+    font-size: 2rem;
+    position: fixed; /* Penting: Mengatur posisi tetap di layar */
+    bottom: 20%;     /* 50% dari bawah layar */
+    right: 5px;      /* 5px dari kanan layar */
+    cursor: pointer; /* Menunjukkan bahwa elemen ini bisa diklik */
+    color: white;
+    opacity: 0.3;
+    mix-blend-mode: difference;
+    animation: rotating 4s linear infinite;
+    transform-origin: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    line-height: 0;
+    z-index: 9;
+}
+
+/* Keyframes untuk animasi rotasi */
+@keyframes rotating {
+  from {
+    transform: rotate(0);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+</style>
+
+<body>
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <p>LOADING...</p>
+</div>
+
+<div class="envelope-container">
+    <div class="envelope-wrapper">
+        <div class="flower-motif motif-left"></div>
+        <div class="flower-motif motif-right"></div>
+        <div class="flower-motif motif-bottom"></div>
+
+        <input id="flap" type="checkbox"/>
+        <label class="flap" for="flap">
+          <div class="logo"></div>
+        </label>
+        <div class="envelope-back"></div>
+        <div class="card" id="card">
+            <div class="card-border">
+              <p id="cardRecipientText">
+                Dear xxx, <br />
+                Thank you so much for being part of our special day. <br />Your
+                presence, heartfelt wishes, prayers, and thoughtful gifts truly
+                meant the world to us. <br />We feel incredibly grateful and blessed
+                to celebrate this beautiful moment surrounded by so much love and
+                support. <br />With all our love, <br />Calvin & Claudya
+              </p>
+            </div>
+        </div>
+        <div class="card-front"></div>
+    </div>
+</div>
+<div id="audio-container">
+    <audio id="song" preload="auto">
+        <source src="save-and-sound.mp3" type="audio/mp3">
+        Your browser does not support HTML5 audio.
+    </audio>
+    <div class="audio-icon-wrapper" style="display: flex;">
+        <i class="bi bi-disc"></i>
+    </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // Dapatkan elemen-elemen yang diperlukan dari DOM
+    const cardRecipientText = document.getElementById('cardRecipientText');
+    const song = document.getElementById('song'); // Elemen audio
+    const audioIconWrapper = document.querySelector('.audio-icon-wrapper'); // Wrapper ikon audio
+    const flapCheckbox = document.getElementById('flap'); // Checkbox untuk membuka/menutup amplop
+    const cardElement = document.querySelector('.card'); // Elemen kartu
+    const loadingOverlay = document.getElementById('loadingOverlay'); // Elemen loading overlay
+
+    // Pesan asli untuk kartu ucapan (perhatikan penggunaan backticks ` untuk template literal)
+    const originalMessage = `
+        Thank you so much for being part of our special day. <br />Your
+        presence, heartfelt wishes, prayers, and thoughtful gifts truly
+        meant the world to us. <br />We feel incredibly grateful and blessed
+        to celebrate this beautiful moment surrounded by so much love and
+        support. <br />With all our love, <br />Calvin & Claudya
+    `;
+
+    // Fungsi untuk memperbarui nama penerima di kartu
+    function updateCardRecipient(name) {
+        // Menggunakan template literal untuk kemudahan injeksi nama
+        cardRecipientText.innerHTML = `Dear <strong>${name}</strong>, <br />${originalMessage}`;
+    }
+
+    // --- Logika untuk nama penerima dari URL atau Local Storage ---
+    const urlParams = new URLSearchParams(window.location.search);
+    const nameFromURL = urlParams.get('to');
+
+    let recipientName = "xxx"; // Nama default jika tidak ada di URL atau Local Storage
+
+    if (nameFromURL) {
+        // Mendekode nama untuk menangani karakter khusus (misal spasi)
+        recipientName = decodeURIComponent(nameFromURL);
+        localStorage.setItem('recipientName', recipientName); // Simpan ke local storage
+    } else {
+        const storedName = localStorage.getItem('recipientName');
+        if (storedName) {
+            recipientName = storedName; // Ambil dari local storage jika ada
+        }
+    }
+    updateCardRecipient(recipientName); // Perbarui tampilan kartu dengan nama yang ditemukan
+
+    // --- Logika Pemutaran Audio ---
+
+    // Fungsi untuk mencoba memutar audio
+    // Penting: Pemutaran audio tanpa mute memerlukan interaksi pengguna awal.
+    function tryPlayAudio() {
+        const playPromise = song.play();
+
+        if (playPromise !== undefined) {
+            playPromise.then(() => {
+                // Autoplay berhasil (karena dipicu oleh interaksi pengguna)
+                console.log("Audio berhasil diputar.");
+                // Sembunyikan overlay setelah audio berhasil diputar (jika belum disembunyikan)
+                hideLoadingOverlay();
+            }).catch(error => {
+                // Autoplay masih diblokir atau ada masalah lain
+                console.error("Gagal memutar audio setelah interaksi pengguna:", error);
+                // Sembunyikan overlay meskipun audio gagal diputar, agar pengguna bisa berinteraksi
+                hideLoadingOverlay();
+            });
+        } else {
+             // Jika playPromise tidak terdefinisi (misalnya browser lama), langsung sembunyikan overlay
+             hideLoadingOverlay();
+        }
+    }
+
+    // --- Loading Overlay Functions ---
+    function showLoadingOverlay() {
+        loadingOverlay.classList.remove('hidden');
+    }
+
+    function hideLoadingOverlay() {
+        loadingOverlay.classList.add('hidden');
+    }
+
+    // --- Initial Load Logic ---
+    // Tampilkan loading overlay saat pertama kali dimuat
+    showLoadingOverlay();
+
+    // Sembunyikan loading overlay setelah semua sumber daya (termasuk gambar dan audio) dimuat
+    window.addEventListener('load', () => {
+        // Beri sedikit delay agar spinner terlihat, kemudian sembunyikan
+        setTimeout(() => {
+            // Jika amplop belum dibuka dan audio belum diputar, audio akan diputar saat dibuka.
+            // Jika sudah ada interaksi, audio bisa diputar.
+            // Kita bisa juga membiarkan overlay sampai ada interaksi user,
+            // atau langsung sembunyikan setelah konten siap.
+            // Untuk user experience terbaik, sembunyikan setelah konten siap atau interaksi pertama.
+            hideLoadingOverlay();
+        }, 500); // Durasi delay 0.5 detik
+    });
+
+    // --- Event Listener Utama: Putar musik & Animasi saat amplop dibuka/ditutup ---
+    flapCheckbox.addEventListener('change', () => {
+        if (flapCheckbox.checked) { // Jika amplop dibuka (checkbox dicentang)
+            tryPlayAudio(); // Coba putar audio
+            // Terapkan animasi 'outcard'
+            cardElement.style.animation = 'outcard 1.5s forwards';
+        } else { // Jika amplop ditutup
+            // Terapkan animasi 'incard'
+            cardElement.style.animation = 'incard 1.5s forwards';
+        }
+    });
+
+    // --- Event Listener Cadangan: Putar/Jeda musik saat ikon audio diklik ---
+    audioIconWrapper.addEventListener('click', () => {
+        if (song.paused) {
+            tryPlayAudio(); // Gunakan fungsi coba putar
+        } else {
+            song.pause();
+        }
+    });
+});
+
+</script>
+</body>
+</html>
