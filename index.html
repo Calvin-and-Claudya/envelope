@@ -102,7 +102,7 @@ body{
  .card{
    position: absolute;
    width: 300px;
-   height: 180px;
+   height: auto;
    background-color: white;
    top: 10px;
    left: 0;
@@ -117,7 +117,7 @@ body{
    border-radius: 7%;
    text-align: start;
    padding: 3%;
-   opacity: 0.3;
+   opacity: 0;
  }
 
  .card-border {
@@ -257,7 +257,7 @@ body{
   100% {
     z-index: 1; /* Kembali ke z-index semula (di dalam amplop) */
     transform: translateY(0); /* Kembali ke posisi awal di dalam amplop */
-    opacity: 0.3; /* Kembali ke opasitas samar seperti saat kartu tertutup */
+    opacity: 0; /* Kembali ke opasitas samar seperti saat kartu tertutup */
   }
 }
 
@@ -311,7 +311,7 @@ body{
     background-size: 100% 100%; /* Sesuaikan ukuran gambar agar pas */
     background-repeat: no-repeat;
     background-position: center;
-    top: -100px; /* Posisikan di atas envelope-wrapper */
+    top: -70px; /* Posisikan di atas envelope-wrapper */
     left: -33px;
     z-index: 6; /* Di atas amplop */
  }
@@ -376,12 +376,12 @@ body{
         <div class="card" id="card">
             <div class="card-border">
               <p id="cardRecipientText">
-                Dear xxx, <br />
+                Dear xxx, <br /><br />
                 Thank you so much for being part of our special day. <br />Your
                 presence, heartfelt wishes, prayers, and thoughtful gifts truly
                 meant the world to us. <br />We feel incredibly grateful and blessed
                 to celebrate this beautiful moment surrounded by so much love and
-                support. <br />With all our love, <br />Calvin & Claudya
+                support. <br /><br />With all our love, <br /><br />Calvin & Claudya
               </p>
             </div>
         </div>
@@ -414,13 +414,13 @@ body{
         presence, heartfelt wishes, prayers, and thoughtful gifts truly
         meant the world to us. <br />We feel incredibly grateful and blessed
         to celebrate this beautiful moment surrounded by so much love and
-        support. <br />With all our love, <br />Calvin & Claudya
+        support. <br /><br />With all our love, <br /><br />Calvin & Claudya
     `;
 
     // Fungsi untuk memperbarui nama penerima di kartu
     function updateCardRecipient(name) {
         // Menggunakan template literal untuk kemudahan injeksi nama
-        cardRecipientText.innerHTML = `Dear <strong>${name}</strong>, <br />${originalMessage}`;
+        cardRecipientText.innerHTML = `Dear <strong>${name}</strong>, <br /><br />${originalMessage}`;
     }
 
     // --- Logika untuk nama penerima dari URL atau Local Storage ---
@@ -513,7 +513,6 @@ body{
         }
     });
 });
-
 </script>
 </body>
 </html>
